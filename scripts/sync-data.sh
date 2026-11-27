@@ -48,7 +48,7 @@ PY
 LIBRARY="$DATA_ROOT/library/$GENERATION"
 [[ -d "$LIBRARY" && -f "$LIBRARY/build-report.json" ]] || { echo "Missing generation: $GENERATION" >&2; exit 1; }
 
-RCLONE=(rclone)
+RCLONE=(rclone --s3-no-check-bucket)
 if (( DRY_RUN )); then RCLONE+=(--dry-run); fi
 
 upload_catalog() {
