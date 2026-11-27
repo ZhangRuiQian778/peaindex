@@ -1,0 +1,9 @@
+{
+  "name": "morbidgenes-phase1-demo",
+  "private": true,
+  "scripts": {
+    "build": "python3 scripts/build.py",
+    "dev": "python3 scripts/serve.py",
+    "start": "python3 scripts/serve.py"
+  }
+}

@@ -1,0 +1,18 @@
+# Generated application and published data
+external-data/
+dist/
+
+# Local environment configuration
+.env
+.env.*
+!.env.example
+
+# Local source datasets and research artifacts. Pages builds only need the app shell.
+data/
+batches/
+.wiki/
+*.xlsx
+*.pdf
+.DS_Store
+__pycache__/
+scripts/__pycache__/
