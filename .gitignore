@@ -8,7 +8,7 @@ dist/
 !.env.example
 
 # Local source datasets and research artifacts. Pages builds only need the app shell.
-data/
+/data/
 batches/
 .wiki/
 *.xlsx

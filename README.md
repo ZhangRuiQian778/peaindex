@@ -50,18 +50,22 @@ bash scripts/sync-data.sh --dry-run r2:peaindex-data peaindex
 bash scripts/sync-data.sh r2:peaindex-data peaindex
 ```
 
-Cloudflare Pages 可从 GitHub 的 `main` 分支发布。构建命令填写 `npm run build`，输出目录填写 `dist`。在生产环境变量中设置 `PEAINDEX_DATA_BASE_URL`，值为 R2 自定义域和上面选定的对象前缀，例如 `https://data.example.com/peaindex/`。R2 CORS 的正式 Origin 填写部署后的 Pages 域名。
+## Cloudflare Pages 部署
+
+在 Pages 中连接 GitHub 的 `main` 分支，从仓库根目录执行 `npm run build`，输出目录填写 `dist`。生产环境的 `PEAINDEX_DATA_BASE_URL` 保持为空，浏览器使用同源 `/data/`。在 Pages 项目的设置中添加 R2 绑定，将变量名 `PEAINDEX_DATA` 绑定到私有桶 `peaindex-data`，随后重新部署。根目录 `functions/data/[[path]].js` 处理 `/data/` 下的 GET 和 HEAD，从桶中读取 `peaindex/` 前缀。同源部署可保持桶的公开访问关闭。
+
+先在 Pages 项目的自定义域页面添加 `peaindex.cvd.xin`，并确认 Pages 给出的目标主机名为 `peaindex.pages.dev`。再到阿里云云解析 DNS 为 `cvd.xin` 新增 CNAME 记录，主机记录填 `peaindex`，记录值填 `peaindex.pages.dev`，解析线路选「默认」，TTL 填 600 秒。[Cloudflare Pages 自定义域](https://developers.cloudflare.com/pages/configuration/custom-domains/)
 
 同步使用 `--transfers 32`。版本分片使用 `application/json` 和 `Cache-Control: public, max-age=31536000, immutable`。`catalog.json` 使用 `application/json` 和 `Cache-Control: no-cache`。`catalog.json.gz` 使用 `application/gzip`、`Cache-Control: no-cache`，并留空 `Content-Encoding`，由浏览器代码解压一次。将示例域名和 generation 替换为实际值，再查看 CDN 或对象存储的响应头。
 
 ```sh
 rclone size r2:peaindex-data/peaindex/library/4e66d36ebfec5a7eefff
-curl -fsSI -H 'Origin: https://peaindex.example.com' https://data.example.com/peaindex/catalog.json.gz
-curl -fsSI -H 'Origin: https://peaindex.example.com' https://data.example.com/peaindex/catalog.json
-curl -fsSI -H 'Origin: https://peaindex.example.com' https://data.example.com/peaindex/library/4e66d36ebfec5a7eefff/gene/HGNC%3A654.json
+curl -fsSI https://peaindex.cvd.xin/data/catalog.json.gz
+curl -fsSI https://peaindex.cvd.xin/data/catalog.json
+curl -fsSI https://peaindex.cvd.xin/data/library/4e66d36ebfec5a7eefff/gene/HGNC%3A6547.json
 ```
 
-检查 `Access-Control-Allow-Origin` 是否匹配请求 Origin，并核对上面的类型和缓存策略。发布前归档上一版 `catalog.json` 和 `catalog.json.gz`。回滚时将归档的同一对文件恢复到 `external-data/`，再运行相同的同步命令。脚本会核对旧目录引用的 generation 并切换目录，依赖各自 generation 的页面能继续读到分片。
+核对上面的类型和缓存策略。跨源部署时可在请求中加 `-H 'Origin: https://peaindex.example.com'`，检查 `Access-Control-Allow-Origin` 是否匹配请求 Origin。发布前归档上一版 `catalog.json` 和 `catalog.json.gz`。回滚时将归档的同一对文件恢复到 `external-data/`，再运行相同的同步命令。脚本会核对旧目录引用的 generation 并切换目录，依赖各自 generation 的页面能继续读到分片。
 
 疾病层级使用 MONDO 和 HPO 的 `is_a`，表型与疾病分支沿用 MONDO 的已验证表型关系。补充的本体页面用于既有分支和历史编号跳转。
 
