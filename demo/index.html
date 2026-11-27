@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="peaindex-data-base-url" content="" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#F7F8F6" />
+    <title>豌豆索引 PeaIndex｜基因–疾病证据复核台</title>
+    <link rel="icon" href="data:," />
+    <link rel="stylesheet" href="styles.css?v=31d281cb199f" />
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="topbar-inner page-width">
+        <div class="brand-lockup">
+          <a class="brand-name" id="home-link" href="./" aria-label="豌豆索引首页">豌豆索引</a><span class="brand-divider" aria-hidden="true">｜</span><span class="brand-subtitle">基因–疾病证据复核台</span>
+        </div>
+        <div class="toolbar-search" id="toolbar-search" hidden></div>
+        <span class="topbar-meta" id="library-meta">本地全库</span>
+      </div>
+    </header>
+
+    <main class="page-width">
+      <section class="home" id="home" aria-labelledby="page-title">
+        <h1 id="page-title" tabindex="-1">检索疾病或基因</h1>
+        <div id="home-search">
+          <div class="search-wrap" id="search-wrap" role="search" aria-label="检索疾病或基因">
+            <div class="search-box">
+              <svg class="search-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.8" cy="10.8" r="6.8"></circle><path d="m16 16 5 5"></path></svg>
+              <input id="global-search" type="search" disabled aria-controls="suggestions" aria-expanded="false" autocomplete="off" placeholder="输入中文病名、英文名、基因符号或编号" aria-label="检索疾病或基因" />
+              <button type="button" class="icon-button clear-search" id="clear-search" aria-label="清除搜索" hidden>×</button>
+              <kbd class="search-shortcut" id="search-shortcut" title="聚焦搜索">⌘ K</kbd>
+            </div>
+            <div class="suggestions" id="suggestions" hidden></div>
+          </div>
+        </div>
+
+        <p class="load-error" id="load-error" role="status" hidden>无法读取检索目录，请检查静态服务器。</p>
+        <section class="sample-index" id="sample-index" aria-labelledby="sample-title" hidden>
+          <h2 id="sample-title">示例疾病</h2>
+          <div class="sample-columns" aria-hidden="true"><span>中文病名</span><span>英文病名</span><span>MONDO 编号</span></div>
+          <ul id="sample-list"></ul>
+        </section>
+      </section>
+
+      <section class="workspace" id="workspace" aria-labelledby="entity-title" hidden>
+        <div class="disease-overview" id="disease-overview"></div>
+        <div class="detail-status" id="detail-status" hidden>
+          <p id="detail-message" role="status"></p>
+          <button type="button" class="outline-button" id="retry-details" hidden>重新加载</button>
+        </div>
+        <section class="review-list" id="review-list" aria-labelledby="review-list-title">
+          <div class="list-heading">
+            <div class="list-title"><h2 id="review-list-title">复核列表</h2><div id="association-scope" hidden></div></div>
+            <button class="outline-button" id="export-open"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m0-12 4 4m-4-4-4 4M5 14v5a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-5"></path></svg>预览复核结果</button>
+          </div>
+          <div class="list-summary">
+            <div class="list-counts" id="list-counts" role="status"></div>
+            <div id="review-progress"></div>
+          </div>
+          <div class="workspace-toolbar">
+            <div class="filter-pills" id="filter-pills" role="group" aria-label="筛选复核列表"></div>
+            <div class="list-options">
+              <label class="fold-control"><input type="checkbox" id="noise-toggle" checked />折叠未声明弱证据</label>
+              <details class="evidence-legend">
+                <summary>来源字段说明</summary>
+                <div id="source-field-guide" class="source-field-guide"></div>
+              </details>
+            </div>
+          </div>
+          <div class="association-table" role="table" aria-labelledby="review-list-title">
+            <div role="rowgroup">
+              <div class="gene-list-head association-grid" role="row">
+                <span role="columnheader" id="association-column-title">基因</span>
+                <span role="columnheader">遗传方式</span>
+                <span role="columnheader">来源证据</span>
+                <span role="columnheader">复核状态</span>
+              </div>
+            </div>
+            <div id="gene-list" role="rowgroup"></div>
+          </div>
+          <p class="list-footer">复核记录保存在当前浏览器</p>
+        </section>
+      </section>
+    </main>
+
+    <dialog class="evidence-drawer" id="evidence-drawer" aria-labelledby="drawer-title">
+      <div class="drawer-header">
+        <div>
+          <p class="drawer-label" id="drawer-title">医学证据附表</p>
+          <h2 id="drawer-gene-title"></h2>
+          <div class="drawer-identifiers" id="drawer-identifiers"></div>
+        </div>
+        <button class="icon-button" id="drawer-close" aria-label="关闭详情">×</button>
+      </div>
+      <div class="drawer-scroll">
+        <div class="drawer-tools">
+          <div class="drawer-status-row" id="drawer-status-row"></div>
+          <label class="fold-control"><input type="checkbox" id="drawer-noise-toggle" checked />折叠未声明弱证据</label>
+        </div>
+        <section class="drawer-section" aria-labelledby="relationship-title">
+          <div class="drawer-section-heading"><h3 id="relationship-title">按遗传方式分组</h3><span class="section-count" id="drawer-evidence-count"></span></div>
+          <div class="appendix-group-grid appendix-group-columns" aria-hidden="true"><span>遗传方式</span><span>来源记录</span><span>引用清单</span></div>
+          <div id="relationship-groups"></div>
+        </section>
+        <section class="drawer-section" aria-labelledby="review-history-title">
+          <div class="drawer-section-heading"><h3 id="review-history-title">复核留痕</h3></div>
+          <ul class="review-history" id="review-history"></ul>
+        </section>
+      </div>
+      <div class="drawer-footer">
+        <span id="drawer-feedback" class="drawer-feedback" role="status"></span>
+        <button type="button" class="outline-button" id="drawer-snapshot">预览复核结果</button>
+      </div>
+    </dialog>
+
+    <dialog class="export-modal" id="export-modal" aria-labelledby="export-title">
+      <div class="modal-header"><h2 id="export-title" aria-live="polite">复核结果</h2><button class="icon-button" id="export-close" aria-label="关闭预览">×</button></div>
+      <fieldset class="export-scope" id="export-scope" aria-describedby="export-scope-help">
+        <legend>预览与复制范围</legend>
+        <label><input type="radio" name="export-scope" id="export-scope-current" value="current" checked />当前视图</label>
+        <label><input type="radio" name="export-scope" value="browser" />此浏览器全部采信</label>
+      </fieldset>
+      <p class="export-help" id="export-scope-help">当前视图按当前条目及其关联范围汇总，列表筛选不影响导出。</p>
+      <p class="export-summary" id="export-summary"></p>
+      <div class="export-table-wrap"><table><thead><tr><th>基因</th><th>疾病或表型</th><th>遗传模式</th><th>理由</th><th>引用的来源记录</th></tr></thead><tbody id="export-table-body"></tbody></table></div>
+      <div class="modal-actions"><button class="outline-button" id="copy-json">复制 JSON</button><button class="primary-button" id="copy-table">复制表格</button></div>
+      <textarea id="manual-copy" readonly hidden aria-label="快照文本"></textarea>
+    </dialog>
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+    <script src="app.js?v=74791cc2b9e8"></script>
+  </body>
+</html>
